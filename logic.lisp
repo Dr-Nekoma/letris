@@ -127,71 +127,47 @@
     (#\s (advance-game-tick board piece)))
   (advance-game-tick board piece))
 
-(defun can-proceed-right-boundary (column-index piece)
-  (destructuring-bind (piece-row piece-column) (pos piece)
-    (let* ((piece-matrix (representation piece))
-           (dimension (array-dimension piece-matrix 0)))
-      (if (> (+ piece-column dimension) (+ column-index 1))
-          nil
-          (if (= (+ piece-column dimension) (+ column-index 1))
-              (presence-in-column piece-matrix (- dimension 1))
-              t)))))
+(defun has-collision (board piece)
+  (destructuring-bind (piece-row-size piece-column-size) (array-dimensions (representation piece))
+    (destructuring-bind (board-row-size board-column-size) (array-dimensions board)
+      (let* ((initial-position (pos piece))
+             (piece-pos-x (car initial-position))
+             (piece-pos-y (cadr initial-position))
+             (piece-matrix (representation piece))
+             (answer nil))
+        (loop :for i :below piece-row-size
+              :do (loop :for j :below piece-column-size
+                        :do (let* ((piece-value (aref piece-matrix i j))
+                                   (board-x (+ i piece-pos-x))
+                                   (board-y (+ j piece-pos-y))
+                                   (is-out-of-bounds (or (>= board-x board-row-size) (>= board-y board-column-size)))
+                                   (is-piece-1 (= piece-value 1)))
+                              (if is-out-of-bounds
+                                  (setf answer (or answer is-piece-1))
+                                (let ((board-value (aref board (+ i piece-pos-x) (+ j piece-pos-y))))
+                                  (setf answer (or answer (and (= board-value 1) is-piece-1))))))))
+        answer))))
 
-(defun can-proceed-left-boundary (column-index piece)
-  (destructuring-bind (piece-row piece-column) (pos piece)
-    (let* ((piece-matrix (representation piece))
-           (dimension (array-dimension piece-matrix 0)))
-      (if (< piece-column column-index)
-          nil
-          (if (= piece-column column-index)
-              (presence-in-column piece-matrix column-index)
-              t)))))
-
-(defun can-proceed-bottom-boundary (row-index piece)
-  (destructuring-bind (piece-row piece-column) (pos piece)
-    (let* ((piece-matrix (representation piece))
-           (dimension (array-dimension piece-matrix 0)))
-      (if (> (+ piece-row dimension) (+ row-index 1))
-          nil
-          (if (= (+ piece-row dimension) (+ row-index 1))
-              (presence-in-row piece-matrix (- dimension 1))
-              t)))))
-
-(defun presence-in-column (matrix column-index)
-  (let* ((height (array-dimension matrix 0)))
-    (loop :for j :below height
-          :always (= 0 (aref matrix j column-index)))))
-
-(defun presence-in-row (matrix row-index)
-  (let* ((width (array-dimension matrix 1)))
-    (loop :for j :below width
-          :always (= 0 (aref matrix row-index j)))))          
-
-(defun check-for-boundaries (board piece user-input)
+(defun check-for-collisions (board piece user-input)
   (destructuring-bind (rows columns) (array-dimensions board)
     (let ((initial-position (pos piece))
           (piece-matrix (representation piece)))
       (case user-input
         (#\d (can-proceed-right-boundary (- columns 1) piece))
         (#\a (can-proceed-left-boundary 0 piece))
-        (#\s (can-proceed-bottom-boundary (- rows 1) piece))
-        ))))
+        (#\s (can-proceed-bottom-boundary (- rows 1) piece))))))
 
 (defparameter test-piece (spawn 'l-piece))
-(setf (pos test-piece) '(22 4))
+(setf (pos test-piece) '(0 4))
 
-;; Observation: This function only **mutates**
-;;(defun advance-game-tick (board piece)
-;; TODO: Advance time tick
-;;)
+(defparameter test-board (make-array '(6 6)
+                                     :initial-contents #(#(0 0 0 0 0 0)
+                                                         #(0 0 0 0 0 0)                                                    
+                                                         #(0 0 0 0 0 0)
+                                                         #(0 0 0 0 0 0)
+                                                         #(0 0 0 0 0 0)
+                                                         #(0 0 0 0 0 0))))
 
+;; TODO: Translate collision to mutation (put the shadow in the board)
 ;; TODO: Treat user input
-;; TODO: Advance time tick (for testing and in OPENGL)
-;; TODO: Treat collision with boundaries of the board
-;; 1 -> Boundaries
-;; 2 -> Check collision of pieces with other pieces
-
-;; TODO: Treat collision with the grid
 ;; TODO: Start the OPENGL journey
-
-
