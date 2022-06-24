@@ -1,7 +1,7 @@
-(defpackage "l3tris"
+(defpackage "letris"
   (:use :cl))
 
-(in-package "l3tris")
+(in-package "letris")
 
 (defun make-board () (make-array '(24 10)))
 
@@ -170,4 +170,4 @@
 
 ;; TODO: Translate collision to mutation (put the shadow in the board)
 ;; TODO: Treat user input
-;; TODO: Start the OPENGL journey
+;; TODO: Add simple visuals
