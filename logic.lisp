@@ -10,19 +10,27 @@
     :initarg :kind
     :accessor kind)
    (pos
+    :initarg :pos
     :initform '(0 4)
     :accessor pos)
    (representation
+    :initarg :representation
     :initform nil
     :accessor representation)))
 
+(defmethod copy ((obj piece))
+  (let ((new-piece (make-instance 'piece :kind (kind obj))))
+    (setf (representation new-piece) (representation obj))
+    (setf (pos new-piece) (pos obj))
+    new-piece))
+
 (defun display (piece)
   (let ((x (elt (pos piece) 0))
-	(y (elt (pos piece) 1))
-	(board (make-board))
-	(piece-matrix (representation piece)))
+        (y (elt (pos piece) 1))
+        (board (make-board))
+        (piece-matrix (representation piece)))
     (loop :for i :below (array-dimension piece-matrix 0)
-	  :do
+          :do
           (loop :for j :below (array-dimension piece-matrix 1)
                 :do
                 (setf (aref board (+ x i) (+ y j)) (aref piece-matrix i j))))
@@ -119,14 +127,6 @@
     (otherwise (setf (representation piece) (matrix-multiplication (transpose (representation piece)) identity-horizontaly-mirrowed))))
   piece)
 
-(defun advance-game-stage (board piece user-input)
-  (case user-input
-    (#\d (move-piece-right board piece))
-    (#\a (move-piece-left board piece))
-    (#\w (rotate-piece piece))
-    (#\s (advance-game-tick board piece)))
-  (advance-game-tick board piece))
-
 (defun has-collision (board piece)
   (destructuring-bind (piece-row-size piece-column-size) (array-dimensions (representation piece))
     (destructuring-bind (board-row-size board-column-size) (array-dimensions board)
@@ -144,30 +144,91 @@
                                    (is-piece-1 (= piece-value 1)))
                               (if is-out-of-bounds
                                   (setf answer (or answer is-piece-1))
-                                (let ((board-value (aref board (+ i piece-pos-x) (+ j piece-pos-y))))
-                                  (setf answer (or answer (and (= board-value 1) is-piece-1))))))))
+                                  (let ((board-value (aref board (+ i piece-pos-x) (+ j piece-pos-y))))
+                                    (setf answer (or answer (and (= board-value 1) is-piece-1))))))))
         answer))))
 
-(defun check-for-collisions (board piece user-input)
-  (destructuring-bind (rows columns) (array-dimensions board)
-    (let ((initial-position (pos piece))
-          (piece-matrix (representation piece)))
-      (case user-input
-        (#\d (can-proceed-right-boundary (- columns 1) piece))
-        (#\a (can-proceed-left-boundary 0 piece))
-        (#\s (can-proceed-bottom-boundary (- rows 1) piece))))))
+(defun spawn-random-piece ()
+  (let ((index (random 6)))
+    (case index
+      (0 (spawn 't-piece))
+      (1 (spawn 's-piece))
+      (2 (spawn 'i-piece))
+      (3 (spawn 'j-piece))
+      (4 (spawn 'o-piece))
+      (5 (spawn 'z-piece)))))
 
-(defparameter test-piece (spawn 'l-piece))
-(setf (pos test-piece) '(0 4))
+;; Create a global piece
+;; Create a global board
+;; Create a user-input control variable
 
-(defparameter test-board (make-array '(6 6)
-                                     :initial-contents #(#(0 0 0 0 0 0)
-                                                         #(0 0 0 0 0 0)                                                    
-                                                         #(0 0 0 0 0 0)
-                                                         #(0 0 0 0 0 0)
-                                                         #(0 0 0 0 0 0)
-                                                         #(0 0 0 0 0 0))))
+;; Call the game loop (interacts with 3)
+;; Read the user-input
+;; Given a piece, a board, and an user-input, can we proceed with this movement?
 
-;; TODO: Translate collision to mutation (put the shadow in the board)
+(defparameter *test-piece* (spawn 'o-piece))
+(setf (pos *test-piece*) '(0 2))
+
+(defparameter *test-board* (make-array '(6 6)
+                                       :initial-contents #(#(0 0 0 0 0 1)
+                                                           #(0 0 0 0 0 1)                                                    
+                                                           #(0 0 0 0 0 1)
+                                                           #(0 0 0 0 0 1)
+                                                           #(0 0 0 0 0 1)
+                                                           #(0 0 0 0 0 1))))
+
+(defun copy-multi-array (array)
+  (let ((res (make-board)))
+    (loop :for i :below (array-total-size array)
+          :do (setf (row-major-aref res i) (row-major-aref array i)))
+    res))
+
+(defun game-loop ()
+  (let ((user-movement (read-char))  
+        (clone-board (copy-multi-array *test-board*)))
+    (case user-movement
+      (#\d (princ "👉")) ;(move-piece-right clone-board *test-piece*))
+      (#\a (princ "👈")) ;(move-piece-left clone-board *test-piece*))
+      (#\w (princ "🌀")) ;(rotate-piece *test-piece*))
+      (#\s (princ "👇"))) ;(advance-game-tick clone-board *test-piece*)))
+    clone-board))
+
+;; We know we want to go to the right
+;; We should update the piece's pos to x + 1 and y + 0
+;; We should call has-collision with the current board and the updated piece
+;; If we get a collision we just return the original board
+;; If we don't get a collision we just draw the updated piece in the board to get a new one
+
+(defun move-adjustments (piece board movement-coord)
+  (let ((new-piece (copy piece)))
+    (setf (pos new-piece) movement-coord)
+    (unless (has-collision board new-piece) (draw-piece-on-board board new-piece))))
+
+(defun attempt-to-move (board piece user-movement)
+  (let ((x (first (pos piece)))
+        (y (second (pos piece))))
+    (case user-movement
+      (#\d (move-adjustments piece board `(,x ,(+ y 1)))) ;(move-piece-right clone-board *test-piece*))
+      (#\a (move-adjustments piece board `(,x ,(- y 1)))) ;(move-piece-left clone-board *test-piece*))
+      (#\w (move-adjustments (rotate-piece piece) board `(,x ,y))) ;(rotate-piece *test-piece*))
+      (#\s (move-adjustments piece board `(,(+ x 1) ,y))))
+    board))
+
+(defun draw-piece-on-board (board piece)
+  (let ((init-pos-x (first (pos piece)))
+        (init-pos-y (second (pos piece)))
+        (dimension (array-dimension (representation piece) 0))
+        (piece-matrix (representation piece)))
+    (loop :for i :from init-pos-x :below (+ init-pos-x dimension)
+          :for a :from 0 :below dimension
+          :do (loop :for j :from init-pos-y :below (+ init-pos-y dimension)
+                    :for b :from 0 :below dimension
+                    :do (when (array-in-bounds-p board i j)
+                          (let ((board-value (aref board i j))
+                                (piece-value (aref piece-matrix a b)))
+                            (format t "~a ~a ~a ~a~%" i j a b)
+                            (setf (aref board i j) (logior board-value piece-value))))))))
+
 ;; TODO: Treat user input
+;; TODO: We need to clean the ghosts of the piece after moving (go to the UNLESS Nathan hates)
 ;; TODO: Add simple visuals
