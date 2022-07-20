@@ -18,11 +18,24 @@
     :initform nil
     :accessor representation)))
 
+(defmethod copy ((obj array))
+  (let ((res (make-array (array-dimensions obj))))
+    (loop :for i :below (array-total-size obj)
+          :do (setf (row-major-aref res i) (copy (row-major-aref obj i))))
+    res))
+
+(defmethod copy ((obj number))
+  obj)
+
+(defmethod copy ((obj list))
+  (map 'list #'copy obj))
+
 (defmethod copy ((obj piece))
-  (let ((new-piece (make-instance 'piece :kind (kind obj))))
-    (setf (representation new-piece) (representation obj))
-    (setf (pos new-piece) (pos obj))
-    new-piece))
+  (let ((new (allocate-instance (find-class 'piece))))
+    (setf (representation new) (copy (representation obj))
+          (pos new) (copy (pos obj))
+          (kind new) (kind obj))
+    new))
 
 (defun display (piece)
   (let ((x (elt (pos piece) 0))
@@ -175,12 +188,6 @@
 
 (defparameter *test-board* (make-board))
 
-(defun copy-multi-array (array)
-  (let ((res (make-board)))
-    (loop :for i :below (array-total-size array)
-          :do (setf (row-major-aref res i) (row-major-aref array i)))
-    res))
-
 ;; Read user movement
 ;; Attempt to move the piece according the move
 ;; If we collide going down, we glue the piece onto the board, we generate a new piece
@@ -188,6 +195,29 @@
 ;; If we collide, we glue the piece onto the board, we generate a new piece
 ;; We draw
 ;; We repeat
+
+(defun find-row-to-clear (board)
+  (let ((h (array-dimension board 0))
+        (w (array-dimension board 1)))
+    (loop :for i :below (* h w) :by w
+          :for row := (make-array w :displaced-to board
+                                    :displaced-index-offset i)
+          :when (every (lambda (x) (= x 1)) row)
+          :do (return (/ i w)))))
+
+(defun clear-row (board index)
+  (let* ((h (array-dimension board 0))
+         (w (array-dimension board 1))
+         (flat-board (make-array (* h w)
+                                 :displaced-to board))
+         (top-part (make-array (* w index)
+                               :displaced-to board)))
+    (setf (subseq flat-board w (* w (+ 1 index))) top-part)))
+
+(defun check-board (board)
+  (loop :for ind := (find-line-to-clear board)
+        :while ind
+        :do (clear-row board ind)))
 
 (defun game-loop ()
   (let* ((user-movement (read-char))
@@ -203,9 +233,15 @@
             (glue-piece-on-board *test-board* *test-piece*)
             (setf *test-piece* (spawn-random-piece)))))
     (draw-piece-on-board *test-board* *test-piece*)
+    (check-board *test-board*)
     (game-loop)))
 
-
+(defparameter *board* (make-array '(5 4)
+                                  :initial-contents #(#(0 0 0 0)
+                                                      #(1 0 1 0)
+                                                      #(1 1 1 1)
+                                                      #(1 0 1 1)
+                                                      #(1 1 1 1))))
 ;; Pick the user movement and move
 ;; Check for collision and glue if necessary
 ;; Go down
@@ -242,7 +278,7 @@
       (#\s (move-adjustments piece board (change-coords `(,(+ x 1) ,y)))))))
 
 (defun draw-piece-on-board (board piece)
-  (let ((board-clone (copy-multi-array board)))
+  (let ((board-clone (copy board)))
     (glue-piece-on-board board-clone piece)
     (prin1 board-clone)
     (terpri)))
