@@ -38,3 +38,47 @@
           :do (loop :for j :below n
                     :do (format t "~s " (aref (representation piece) i j)))
               (terpri))))
+
+
+
+
+;;; ---------------------------------------------------------------------------
+;;; Experimentation zone
+
+
+
+
+(defvar *canvas-width* 800)
+(defvar *canvas-height* 600)
+
+(gamekit:defgame hello-gamekit () ()
+  (:viewport-width *canvas-width*)     ; window's width
+  (:viewport-height *canvas-height*)   ; window's height
+  (:viewport-title "Hello Gamekit!"))  ; window's title
+
+
+(defvar *black* (gamekit:vec4 0 0 0 1))
+(defvar *transparent* (gamekit:vec4 0 0 0 0))
+(defvar *origin* (gamekit:vec2 0 0))
+
+(defvar *current-box-position* (gamekit:vec2 0 0))
+(defparameter *single-pixel* 25)
+
+(defun draw-matrix (matrix origin color)
+  (destructuring-bind (m n) (array-dimensions matrix)
+    (loop :for i :from (- m 1) :downto 0
+          :do (let ((prev-x (gamekit:x origin)))
+                (loop :for j :below n
+                      :do (let ((color-to-draw (if (= 0 (aref matrix i j))
+                                                   *transparent* color)))
+                            (gamekit:draw-rect origin *single-pixel* *single-pixel*
+                                               :fill-paint color-to-draw)
+                            (incf (gamekit:x origin) *single-pixel*)))
+                (incf (gamekit:y origin) *single-pixel*)
+                (setf (gamekit:x origin) prev-x)))))
+
+
+(defmethod gamekit:draw ((app hello-gamekit))
+  (let ((representation (make-representation 't-piece)))
+    (draw-matrix representation *origin* *black*)
+    (setf *origin* (gamekit:vec2 0 0))))

@@ -112,3 +112,26 @@
                           (let ((board-value (aref board i j))
                                 (piece-value (aref piece-matrix a b)))
                             (setf (aref board i j) (logior board-value piece-value))))))))
+
+
+(gamekit:bind-button :a :pressed
+                     (lambda ()
+                       (let ((x (first (pos *test-piece*)))
+                             (y (second (pos *test-piece*))))
+                         (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(- y 1)))))))
+
+(gamekit:bind-button :d :pressed
+                     (lambda ()
+                       (let ((x (first (pos *test-piece*)))
+                             (y (second (pos *test-piece*))))
+                         (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(+ y 1)))))))
+
+(gamekit:bind-button :w :pressed
+                     (lambda ()
+                       (move-adjustments *test-piece* *test-board* #'rotate-piece-left)))
+
+(gamekit:bind-button :s :pressed
+                     (lambda ()
+                       (let ((x (first (pos *test-piece*)))
+                             (y (second (pos *test-piece*))))
+                         (move-adjustments *test-piece* *test-board* (change-coords `(,(+ x 1) ,y))))))
