@@ -77,6 +77,8 @@
         :while ind
         :do (clear-row board ind)))
 
+(defparameter *success* t)
+(defparameter *current-button* :s)
 
 (defun move-adjustments (piece board func)
   (let ((new-piece (funcall func (copy piece))))
@@ -94,10 +96,10 @@
   (let ((x (first (pos piece)))
         (y (second (pos piece))))
     (case user-movement
-      (#\d (move-adjustments piece board (change-coords `(,x ,(+ y 1)))))
-      (#\a (move-adjustments piece board (change-coords `(,x ,(- y 1)))))
-      (#\w (move-adjustments piece board  #'rotate-piece-left))
-      (#\s (move-adjustments piece board (change-coords `(,(+ x 1) ,y)))))))
+      (:d (move-adjustments piece board (change-coords `(,x ,(+ y 1)))))
+      (:a (move-adjustments piece board (change-coords `(,x ,(- y 1)))))
+      (:w (move-adjustments piece board  #'rotate-piece-left))
+      (:s (move-adjustments piece board (change-coords `(,(+ x 1) ,y)))))))
 
 (defun glue-piece-on-board (board piece)
   (let ((init-pos-x (first (pos piece)))
@@ -113,25 +115,40 @@
                                 (piece-value (aref piece-matrix a b)))
                             (setf (aref board i j) (logior board-value piece-value))))))))
 
+(defmethod gamekit:act ((app letris))
+  (check-board *test-board*)
+  (if (and (null *success*) (eql *current-button* :s))
+      (progn
+        (glue-piece-on-board *test-board* *test-piece*)
+        (setf *test-piece* (spawn-random-piece)))
+      (progn
+        (print (setf *success* (attempt-to-move *test-board* *test-piece* :s)))
+        (when (null *success*)
+          (glue-piece-on-board *test-board* *test-piece*)
+          (print (setf *test-piece* (spawn-random-piece)))))))
 
 (gamekit:bind-button :a :pressed
                      (lambda ()
                        (let ((x (first (pos *test-piece*)))
                              (y (second (pos *test-piece*))))
-                         (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(- y 1)))))))
+                         (setf *current-button* :a
+                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(- y 1))))))))
 
 (gamekit:bind-button :d :pressed
                      (lambda ()
                        (let ((x (first (pos *test-piece*)))
                              (y (second (pos *test-piece*))))
-                         (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(+ y 1)))))))
+                         (setf *current-button* :d
+                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(+ y 1))))))))
 
 (gamekit:bind-button :w :pressed
                      (lambda ()
-                       (move-adjustments *test-piece* *test-board* #'rotate-piece-left)))
+                       (setf *current-button* :w
+                             *success* (move-adjustments *test-piece* *test-board* #'rotate-piece-left))))
 
 (gamekit:bind-button :s :pressed
                      (lambda ()
                        (let ((x (first (pos *test-piece*)))
                              (y (second (pos *test-piece*))))
-                         (move-adjustments *test-piece* *test-board* (change-coords `(,(+ x 1) ,y))))))
+                         (setf *current-button* :s
+                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,(+ x 1) ,y)))))))

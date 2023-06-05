@@ -11,12 +11,6 @@
 
 
 
-(defun draw-piece-on-board (board piece)
-  (let ((board-clone (copy board)))
-    (glue-piece-on-board board-clone piece)
-    (print-board board-clone)))
-    ;(terpri)))
-
 
 (defun display (piece)
   (let ((x (elt (pos piece) 0))
@@ -51,11 +45,12 @@
 (defvar *canvas-width* 800)
 (defvar *canvas-height* 600)
 
-(gamekit:defgame hello-gamekit () ()
+(gamekit:defgame letris () ()
   (:viewport-width *canvas-width*)     ; window's width
   (:viewport-height *canvas-height*)   ; window's height
-  (:viewport-title "Hello Gamekit!"))  ; window's title
-
+  (:viewport-title "Letris")  ; window's title
+  (:act-rate 5)
+  (:draw-rate 5))
 
 (defvar *black* (gamekit:vec4 0 0 0 1))
 (defvar *transparent* (gamekit:vec4 0 0 0 0))
@@ -64,8 +59,9 @@
 (defvar *current-box-position* (gamekit:vec2 0 0))
 (defparameter *single-pixel* 25)
 
-(defun draw-matrix (matrix origin color)
+(defun draw-matrix (matrix origin color offset)
   (destructuring-bind (m n) (array-dimensions matrix)
+    (incf (gamekit:x origin) offset)
     (loop :for i :from (- m 1) :downto 0
           :do (let ((prev-x (gamekit:x origin)))
                 (loop :for j :below n
@@ -78,7 +74,8 @@
                 (setf (gamekit:x origin) prev-x)))))
 
 
-(defmethod gamekit:draw ((app hello-gamekit))
-  (let ((representation (make-representation 't-piece)))
-    (draw-matrix representation *origin* *black*)
+(defmethod gamekit:draw ((app letris))
+  (let ((board-clone (copy *test-board*)))
+    (glue-piece-on-board board-clone *test-piece*)
+    (draw-matrix board-clone *origin* *black* (- (floor *canvas-width* 2) 125))
     (setf *origin* (gamekit:vec2 0 0))))

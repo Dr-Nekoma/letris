@@ -11,7 +11,7 @@
 ;; Read the user-input
 ;; Given a piece, a board, and an user-input, can we proceed with this movement?
 
-(defparameter *test-piece* (spawn 'o-piece))
+(defparameter *test-piece* (spawn 'i-piece))
 
 (defparameter *test-board* (make-board))
 
@@ -43,6 +43,10 @@
 
 
 
-;; TODO: Treat user input
-;; TODO: We need to clean the ghosts of the piece after moving (go to the UNLESS Nathan hates)
-;; TODO: Add simple visuals
+;; TODO: (????) We need to clean the ghosts of the piece after moving (go to the UNLESS Nathan hates)
+;; TODO: Do some (proper) color management
+;; TODO: Add a score system
+;; TODO: Add the end of the game condition
+;; TODO: Add more details
+;; TODO: See if it's possible to change the fps at runtime
+;;
