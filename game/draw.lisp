@@ -45,19 +45,16 @@
 (defvar *canvas-width* 800)
 (defvar *canvas-height* 600)
 
-(gamekit:defgame letris () ()
-  (:viewport-width *canvas-width*)     ; window's width
-  (:viewport-height *canvas-height*)   ; window's height
-  (:viewport-title "Letris")  ; window's title
-  (:act-rate 5)
-  (:draw-rate 5))
 
 (defvar *black* (gamekit:vec4 0 0 0 1))
 (defvar *transparent* (gamekit:vec4 0 0 0 0))
 (defvar *origin* (gamekit:vec2 0 0))
 
-(defvar *current-box-position* (gamekit:vec2 0 0))
 (defparameter *single-pixel* 25)
+
+(gamekit:define-font noto-sans "../assets/NotoSans-Regular.ttf")
+(gamekit:define-sound tetris-music "../assets/Tetris_theme.ogg")
+
 
 (defun draw-matrix (matrix origin color offset)
   (destructuring-bind (m n) (array-dimensions matrix)
@@ -74,8 +71,12 @@
                 (setf (gamekit:x origin) prev-x)))))
 
 
-(defmethod gamekit:draw ((app letris))
-  (let ((board-clone (copy *test-board*)))
-    (glue-piece-on-board board-clone *test-piece*)
-    (draw-matrix board-clone *origin* *black* (- (floor *canvas-width* 2) 125))
-    (setf *origin* (gamekit:vec2 0 0))))
+(defmethod gamekit:draw ((this letris))
+  (with-slots (board current-piece score) this
+    (gamekit:draw-text (format nil "SCORE: ~s" score) (gamekit:vec2 (- *canvas-width* 140)
+                                                                    (- *canvas-height* 40))
+                       :font (gamekit:make-font 'noto-sans 32))
+    (let ((board-clone (copy board)))
+      (glue-piece-on-board board-clone current-piece)
+      (draw-matrix board-clone *origin* *black* (- (floor *canvas-width* 2) 125))
+      (setf *origin* (gamekit:vec2 0 0)))))

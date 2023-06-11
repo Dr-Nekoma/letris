@@ -75,10 +75,8 @@
 (defun check-board (board)
   (loop :for ind := (find-row-to-clear board)
         :while ind
-        :do (clear-row board ind)))
+        :count (clear-row board ind)))
 
-(defparameter *success* t)
-(defparameter *current-button* :s)
 
 (defun move-adjustments (piece board func)
   (let ((new-piece (funcall func (copy piece))))
@@ -115,40 +113,26 @@
                                 (piece-value (aref piece-matrix a b)))
                             (setf (aref board i j) (logior board-value piece-value))))))))
 
-(defmethod gamekit:act ((app letris))
-  (check-board *test-board*)
-  (if (and (null *success*) (eql *current-button* :s))
-      (progn
-        (glue-piece-on-board *test-board* *test-piece*)
-        (setf *test-piece* (spawn-random-piece)))
-      (progn
-        (print (setf *success* (attempt-to-move *test-board* *test-piece* :s)))
-        (when (null *success*)
-          (glue-piece-on-board *test-board* *test-piece*)
-          (print (setf *test-piece* (spawn-random-piece)))))))
+(defun give-score (lines &optional (level 0))
+  (* (+ 1 level)
+     (ecase lines
+       (0 0)
+       (1 40)
+       (2 100)
+       (3 300)
+       (4 1200))))
 
-(gamekit:bind-button :a :pressed
-                     (lambda ()
-                       (let ((x (first (pos *test-piece*)))
-                             (y (second (pos *test-piece*))))
-                         (setf *current-button* :a
-                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(- y 1))))))))
 
-(gamekit:bind-button :d :pressed
-                     (lambda ()
-                       (let ((x (first (pos *test-piece*)))
-                             (y (second (pos *test-piece*))))
-                         (setf *current-button* :d
-                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,x ,(+ y 1))))))))
 
-(gamekit:bind-button :w :pressed
-                     (lambda ()
-                       (setf *current-button* :w
-                             *success* (move-adjustments *test-piece* *test-board* #'rotate-piece-left))))
-
-(gamekit:bind-button :s :pressed
-                     (lambda ()
-                       (let ((x (first (pos *test-piece*)))
-                             (y (second (pos *test-piece*))))
-                         (setf *current-button* :s
-                               *success* (move-adjustments *test-piece* *test-board* (change-coords `(,(+ x 1) ,y)))))))
+(defmethod gamekit:act ((this letris))
+  (with-slots (board current-piece current-button move-success score) this
+    (incf score (give-score (check-board board)))
+    (if (and (null move-success) (eql current-button :s))
+        (progn
+          (glue-piece-on-board board current-piece)
+          (setf current-piece (spawn-random-piece)))
+        (progn
+          (setf move-success (attempt-to-move board current-piece :s))
+          (when (null move-success)
+            (glue-piece-on-board board current-piece)
+            (setf current-piece (spawn-random-piece)))))))

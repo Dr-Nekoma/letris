@@ -8,10 +8,9 @@
   :serial t
   :depends-on (#:trivial-gamekit)
   :components ((:file "package")
+               (:file "main")
                (:module "game"
                   :components
                   ((:file "draw")
                    (:file "pieces")
-                   (:file "logic")))
-               (:file "main")
-               (:file "letris")))
+                   (:file "logic")))))
