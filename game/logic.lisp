@@ -41,7 +41,7 @@
                                    (is-piece-1 (= piece-value 1)))
                               (if is-out-of-bounds
                                   (setf answer (or answer is-piece-1))
-                                  (let ((board-value (aref board (+ i piece-pos-x) (+ j piece-pos-y))))
+                                  (let ((board-value (aref board board-x board-y)))
                                     (setf answer (or answer (and (= board-value 1) is-piece-1))))))))
         answer))))
 
@@ -125,14 +125,15 @@
 
 
 (defmethod gamekit:act ((this letris))
-  (with-slots (board current-piece current-button move-success score) this
-    (incf score (give-score (check-board board)))
-    (if (and (null move-success) (eql current-button :s))
-        (progn
-          (glue-piece-on-board board current-piece)
-          (setf current-piece (spawn-random-piece)))
-        (progn
-          (setf move-success (attempt-to-move board current-piece :s))
-          (when (null move-success)
+  (with-slots (board current-piece current-button move-success score paused) this
+    (unless paused
+      (incf score (give-score (check-board board)))
+      (if (and (null move-success) (eql current-button :s))
+          (progn
             (glue-piece-on-board board current-piece)
-            (setf current-piece (spawn-random-piece)))))))
+            (setf current-piece (spawn-random-piece)))
+          (progn
+            (setf move-success (attempt-to-move board current-piece :s))
+            (when (null move-success)
+              (glue-piece-on-board board current-piece)
+              (setf current-piece (spawn-random-piece))))))))

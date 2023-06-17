@@ -7,7 +7,11 @@
    (current-piece :initform (spawn-random-piece))
    (current-button :initform :s)
    (score :initform 0)
-   (move-success :initform t))
+   (move-success :initform t)
+   (mute :initform t)
+   (cursor-position :initform (gamekit:vec2 0 0))
+   (paused :initform nil)
+   (%clone))
   (:viewport-width *canvas-width*)     ; window's width
   (:viewport-height *canvas-height*)   ; window's height
   (:viewport-title "Letris")  ; window's title
@@ -16,7 +20,8 @@
 
 
 (defmethod gamekit:post-initialize :after ((this letris))
-  (with-slots (board current-piece current-button move-success) this
+  (with-slots (board current-piece current-button
+               move-success mute cursor-position score paused) this
     (gamekit:bind-button :a :pressed
                          (lambda ()
                            (let ((x (first (pos current-piece)))
@@ -39,7 +44,33 @@
                                  (y (second (pos current-piece))))
                              (setf current-button :s
                                    move-success (move-adjustments current-piece board (change-coords `(,(+ x 1) ,y)))))))
-    (gamekit:play 'tetris-music :looped-p t)))
+    (gamekit:bind-button :m :pressed
+                         (lambda ()
+                           (if mute
+                              (progn
+                                (gamekit:play 'tetris-music :looped-p t)
+                                (setf mute nil))
+                              (progn
+                                (gamekit:stop-sound 'tetris-music)
+                                (setf mute t)))))
+    (gamekit:bind-button :p :pressed
+                         (lambda ()
+                           (setf paused (not paused))))
+    (gamekit:bind-cursor (lambda (x y)
+                          (setf (gamekit:x cursor-position) x
+                                (gamekit:y cursor-position) y)))
+    (gamekit:bind-button :mouse-left :pressed
+                         (lambda ()
+                           (when (inside-p (coordinates *reset-button*) cursor-position)
+                              (setf board (make-board)
+                                    current-piece (spawn-random-piece)
+                                    score 0
+                                    move-success t
+                                    current-button :s))))))
+
+
+   
+
 
 
 
@@ -49,4 +80,5 @@
 ;; TODO: Add more details
 ;; TODO: See if it's possible to change the fps at runtime
 ;; TODO: Add a menu
-;; TODO: Draw a rectangle to outline the board
+;; TODO: Add pause/resume indications
+;; TODO: Fix the crazy bug (pieces getting stuck on top)
