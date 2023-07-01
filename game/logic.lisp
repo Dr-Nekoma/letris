@@ -123,7 +123,7 @@
        (4 1200))))
 
 
-
+#||
 (defmethod gamekit:act ((this letris))
   (with-slots (board current-piece current-button move-success score paused) this
     (unless paused
@@ -137,3 +137,4 @@
             (when (null move-success)
               (glue-piece-on-board board current-piece)
               (setf current-piece (spawn-random-piece))))))))
+||#

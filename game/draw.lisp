@@ -39,9 +39,87 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Experimentation zone
 
+(setf +app-system+ "letris")
+
+(defclass main (trial:main)
+  ())
+
+(define-pool letris-assets)
+
+
+(define-asset (letris-assets pixel) mesh
+    (make-rectangle-mesh 25 25))
+
+(define-asset (letris-assets board) mesh
+    (make-rectangle-mesh 300 720))
+
+(define-asset (letris-assets test) mesh
+    (make-line-grid-mesh 30 300 720 :pack T))
+
+(define-asset (letris-assets tileset) image
+    #p"tileset.png")
+
+;(define-shader-entity my-player (vertex-entity colored-entity located-entity listener transformed-entity)
+;  ())
+
+(define-shader-entity my-board (tile-layer listener) ())
+
+
+(progn
+  (defmethod setup-scene ((main main) scene)
+    (setf (title *context*) "Letris")
+    (let* ((w (width *context*))
+           (h (height *context*))
+           (board (make-instance 'my-board :location (vec (floor w 2) (floor h 2) 0)
+                                           :tileset (// 'letris-assets 'tileset)
+                                           :size (vec 2 2)
+                                           :tilemap (make-array 8 :element-type '(unsigned-byte 8)
+                                                                  :initial-contents #(0 0 1 0 0 1 1 1))))
+           (board2 (make-instance 'my-board :location (vec (+ 20 (floor w 2)) (+ 20 (floor h 2) 0) 0)
+                                            :tileset (// 'letris-assets 'tileset)
+                                            :size (vec 2 2)
+                                            :tilemap (make-array 8 :element-type '(unsigned-byte 8)
+                                                                   :initial-contents #(0 0 1 0 0 1 1 1)))))
+      (enter board2 scene)
+      (enter board scene)
+      (enter (make-instance '2d-camera) scene)
+      (enter (make-instance 'render-pass) scene)))
+
+  (maybe-reload-scene))
+
+
+;(define-action-set in-game)
+;(define-action move (directional-action in-game))
+
+
+(defun launch (&rest args)
+  (let ((*package* #.*package*))
+    ;(load-keymap)
+    ;(setf (active-p (action-set 'in-game)) T)
+    (apply #'trial:launch 'main args)))
+
+
+(let ((counter 0))
+  (define-handler (my-board tick :around) ()
+    (if (> counter 10)
+        (progn (setf counter 0)
+               (call-next-method))
+        (incf counter))))
+
+(define-handler (my-board tick) ()
+  (let ((data (pixel-data my-board)))
+    (map-into (pixel-data my-board) (lambda () (random 2)))
+    (setf (pixel-data my-board) data)))
 
 
 
+;(define-handler (my-board resize) ()
+;  (setf (location my-board) (vec (floor (width resize) 2)
+;                                 (floor (height resize) 2)
+;                                 0)))
+
+
+#||
 (defvar *canvas-width* 800)
 (defvar *canvas-height* 600)
 
@@ -114,3 +192,4 @@
       (setf *origin* (gamekit:vec2 0 0))
       (draw-matrix board-clone *origin* *black* (- (floor *canvas-width* 2) 125))
       (setf *origin* (gamekit:vec2 0 0)))))
+||#

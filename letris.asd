@@ -6,7 +6,9 @@
   :license  "Specify license here"
   :version "0.0.1"
   :serial t
-  :depends-on (#:trivial-gamekit)
+  :depends-on (:trial
+               :trial-glfw
+               :trial-png)
   :components ((:file "package")
                (:file "util")
                (:file "main")
