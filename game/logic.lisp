@@ -19,8 +19,6 @@
 
     piece))
 
-
-
 (defun has-collision (board piece)
   (declare (optimize (debug 3) (safety 3)))
   (destructuring-bind (piece-row-size piece-column-size) (array-dimensions (representation piece))
@@ -38,11 +36,11 @@
                                    (is-out-of-bounds (or (>= board-x board-row-size)
                                                          (>= board-y board-column-size)
                                                          (< board-y 0)))
-                                   (is-piece-1 (= piece-value 1)))
+                                   (is-piece-value (/= piece-value 0)))
                               (if is-out-of-bounds
-                                  (setf answer (or answer is-piece-1))
+                                  (setf answer (or answer is-piece-value))
                                   (let ((board-value (aref board board-x board-y)))
-                                    (setf answer (or answer (and (= board-value 1) is-piece-1))))))))
+                                    (setf answer (or answer (and (/= board-value 0) is-piece-value))))))))
         answer))))
 
 (defun spawn-random-piece ()
@@ -60,7 +58,7 @@
     (loop :for i :below (* h w) :by w
           :for row := (make-array w :displaced-to board
                                     :displaced-index-offset i)
-          :when (every (lambda (x) (= x 1)) row)
+          :when (every (lambda (x) (/= x 0)) row)
           :do (return (floor i w)))))
 
 (defun clear-row (board index)
@@ -76,7 +74,6 @@
   (loop :for ind := (find-row-to-clear board)
         :while ind
         :count (clear-row board ind)))
-
 
 (defun move-adjustments (piece board func)
   (let ((new-piece (funcall func (copy piece))))
@@ -122,19 +119,9 @@
        (3 300)
        (4 1200))))
 
-
-#||
-(defmethod gamekit:act ((this letris))
-  (with-slots (board current-piece current-button move-success score paused) this
-    (unless paused
-      (incf score (give-score (check-board board)))
-      (if (and (null move-success) (eql current-button :s))
-          (progn
-            (glue-piece-on-board board current-piece)
-            (setf current-piece (spawn-random-piece)))
-          (progn
-            (setf move-success (attempt-to-move board current-piece :s))
-            (when (null move-success)
-              (glue-piece-on-board board current-piece)
-              (setf current-piece (spawn-random-piece))))))))
-||#
+(defun level-up (level lines-counter lines-cleared)
+  (let ((sum-lines (+ lines-cleared lines-counter))
+	(threshold (* level 5)))
+    (if (>= sum-lines threshold)
+	(values (- sum-lines threshold) (+ 1 level))
+	(values lines-counter level))))

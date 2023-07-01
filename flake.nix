@@ -17,9 +17,11 @@
               pkgs.xorg.libX11
               pkgs.xorg.libX11.dev
               pkgs.libGL
+              pkgs.glfw
+              pkgs.libevdev
             ];
             shellHook = ''
-                export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath([pkgs.xorg.libX11])}:${pkgs.lib.makeLibraryPath([pkgs.xorg.libX11.dev])}:${pkgs.lib.makeLibraryPath([pkgs.libGL])}
+                export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath([pkgs.xorg.libX11])}:${pkgs.lib.makeLibraryPath([pkgs.xorg.libX11.dev])}:${pkgs.lib.makeLibraryPath([pkgs.libGL])}:${pkgs.lib.makeLibraryPath([pkgs.glfw])}:${pkgs.lib.makeLibraryPath([pkgs.libevdev])}
             '';      
           };
         }
