@@ -8,26 +8,24 @@
 ;(define-shader-entity my-player (vertex-entity colored-entity located-entity listener transformed-entity)
 ;  ())
 
-; First we map all the elements (numbers) of the representation to tiles
+(defun draw (board)
+  (with-slots (board-representation current-piece) board
+    (let ((board-clone (copy board-representation))
+	  (data (pixel-data board)))
+      (glue-piece-on-board board-clone current-piece)
+      (board-to-tilemap board-clone data)
+      (setf (pixel-data board) data))))
 
-(defun number-to-tile (number)
-  (ecase number
-    (0 (values 0 0))
-    (1 (values 1 1))
-    (2 (values 1 1))
-    (3 (values 1 1))
-    (4 (values 1 1))
-    (5 (values 1 1))
-    (6 (values 1 1))
-    (7 (values 1 1))))
-
-(defun board-to-tilemap (board-representation)
-  (destructuring-bind (h w) (array-dimensions board-represetation)
-    (let ((tilemap (make-array 480 :element-type '(unsigned-byte 8)))
-	  (index 0))
+(defun board-to-tilemap (board-representation tilemap)
+  (destructuring-bind (h w) (array-dimensions board-representation)
+    (let ((index 0))
       (loop :for i :from (- h 1) :downto 0
-	    :do (loop :for j :to w
-		      :do (multiple-value-bind ))))))
+	    :do (loop :for j :below w
+		      :do (setf (values
+				 (aref tilemap index)
+				 (aref tilemap (+ 1 index)))
+				(number-to-tile (aref board-representation i j)))
+			  (incf index 2))))))
 
 (progn
   (defmethod setup-scene ((main main) scene)
@@ -49,7 +47,7 @@
 
 (defun launch (&rest args)
   (let ((*package* #.*package*))
-    (load-keymap)
+    (load-keymap :path (asdf:system-relative-pathname "letris" "keymap.lisp"))
     (setf (active-p (action-set 'in-game)) T)
     (float-features:with-float-traps-masked (:divide-by-zero)
       (apply #'trial:launch 'main args))))

@@ -2,26 +2,12 @@
 
 (in-package #:letris)
 
-(setf +app-system+ "letris")
-
-(defclass main (trial:main)
-  ())
-
 ; After you reach a certain amount of score, decrease counter, and so on and so forth
 
-(defun define-speed (level)
-  (if (= level 2) 100 200))
+;; (defun define-speed (level)
+;;   (if (= level 2) 100 200))
 
-(define-shader-entity board (tile-layer listener)
-  ((board-representation :initform (make-board))
-   (current-piece :initform (spawn-random-piece))
-   (current-button :initform :s)
-   (score :initform 0)
-   (level :initform 0)
-   (lines-counter :initform 0)
-   (move-success :initform t)
-   (paused :initform nil)
-   (speed :initform 100))))
+(defun define-speed (level) 50)
 
 (define-handler (board tick :around) ()
   (with-slots (level speed) board
@@ -32,11 +18,12 @@
 	  (call-next-method)))))
 
 (define-handler (board tick) ()
-  (with-slots (board-representation current-piece current-button move-success score level lines-counter) board
+  (with-slots (board-representation current-piece current-button move-success score level lines-counter paused) board
     (unless paused
       (let ((lines-cleared (check-board board-representation)))
+	(draw board)
 	(incf score (give-score lines-cleared))
-	(setf (values lines-counter level) (level-up level lines-counter lines-cleared))	
+	(setf (values lines-counter level) (level-up level lines-counter lines-cleared))
 	(if (and (null move-success) (eql current-button :s))
 	    (progn
 	      (glue-piece-on-board board-representation current-piece)
@@ -47,14 +34,14 @@
 		(glue-piece-on-board board-representation current-piece)
 		(setf current-piece (spawn-random-piece)))))))))
 
-(define-handler (board key-press) (key)
+(define-handler (board move) ()
   (with-slots (board-representation current-button current-piece) board
-    (when (attempt-to-move board-representation current-piece key)
-      (setf current-button key))))
+    (let ((key (key (source-event move))))
+      (when (attempt-to-move board-representation current-piece key)
+	(setf current-button key)
+	(draw board)))))
 
-  ;; (let ((data (pixel-data board)))
-  ;;   (map-into (pixel-data board) (lambda () (random 2)))
-  ;;   (setf (pixel-data board) data)))
+(define-event piece-ready-to-glue ())
 
 ;; TODO: (????) We need to clean the ghosts of the piece after moving (go to the UNLESS Nathan hates)
 ;; TODO: Do some (proper) color management

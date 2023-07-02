@@ -1,5 +1,16 @@
 (in-package #:letris)
 
+(defun number-to-tile (number)
+  (ecase number
+    (0 (values 0 0))
+    (1 (values 1 1))
+    (2 (values 1 1))
+    (3 (values 1 1))
+    (4 (values 1 1))
+    (5 (values 1 1))
+    (6 (values 1 1))
+    (7 (values 1 1))))
+
 (defun print-board (board)
   (destructuring-bind (m n) (array-dimensions board)
     (loop :for i :below m

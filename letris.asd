@@ -1,20 +1,21 @@
 ;;;; letris.asd
 
 (asdf:defsystem #:letris
-  :description "Describe letris here"
-  :author "Your Name <your.name@example.com>"
-  :license  "Specify license here"
-  :version "0.0.1"
+  :description "A simple Tetris game"
+  :author "drnekoma@gmail.com"
+  :license  "MIT"
+  :version "2.0"
   :serial t
   :depends-on (:trial
                :trial-glfw
                :trial-png)
   :components ((:file "package")
                (:file "util")
-               (:file "main")
                (:module "game"
                   :components
                   ((:file "util")
+		   (:file "logic")
+		   (:file "game")
                    (:file "draw")
-                   (:file "pieces")
-                   (:file "logic")))))
+                   (:file "pieces")))
+	       (:file "main")))

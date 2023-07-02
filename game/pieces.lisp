@@ -16,10 +16,7 @@
    (representation
     :initarg :representation
     :initform nil
-    :accessor representation)
-   (color :initarg :color
-          :initform *black*
-          :accessor color)))
+    :accessor representation)))
 
 (defmethod copy ((obj array))
   (let ((res (make-array (array-dimensions obj))))
