@@ -27,7 +27,7 @@
              (piece-pos-x (first initial-position))
              (piece-pos-y (second initial-position))
              (piece-matrix (representation piece))
-             (answer nil))
+             (answer :no-collision))
         (loop :for i :below piece-row-size
               :do (loop :for j :below piece-column-size
                         :do (let* ((piece-value (aref piece-matrix i j))
@@ -37,10 +37,14 @@
                                                          (>= board-y board-column-size)
                                                          (< board-y 0)))
                                    (is-piece-value (/= piece-value 0)))
-                              (if is-out-of-bounds
-                                  (setf answer (or answer is-piece-value))
-                                  (let ((board-value (aref board board-x board-y)))
-                                    (setf answer (or answer (and (/= board-value 0) is-piece-value))))))))
+			      (when is-piece-value
+				(when (or (>= board-y board-column-size) (< board-y 0))
+				  (setf answer :side-collision))
+				(when (>= board-x board-row-size)
+				  (setf answer :bottom-collision))
+			        (let ((board-value (aref board board-x board-y)))
+				  (when (/= board-value 0)
+				    (setf answer :board-collision)))))))
         answer))))
 
 (defun spawn-random-piece ()
@@ -76,11 +80,12 @@
         :count (clear-row board ind)))
 
 (defun move-adjustments (piece board func)
-  (let ((new-piece (funcall func (copy piece))))
-    (unless (has-collision board new-piece)
+  (let* ((new-piece (funcall func (copy piece)))
+	(collision-result (has-collision board new-piece)))
+    (when (eql collision-result :no-collision)
       (setf (pos piece) (pos new-piece)
-            (representation piece) (representation new-piece))
-      t)))
+	    (representation piece) (representation new-piece)))
+    collision-result))
 
 (defun change-coords (coords)
   (lambda (piece)
@@ -94,7 +99,8 @@
       (:d (move-adjustments piece board (change-coords `(,x ,(+ y 1)))))
       (:a (move-adjustments piece board (change-coords `(,x ,(- y 1)))))
       (:w (move-adjustments piece board  #'rotate-piece-left))
-      (:s (move-adjustments piece board (change-coords `(,(+ x 1) ,y)))))))
+      (:s (move-adjustments piece board (change-coords `(,(+ x 1) ,y))))
+      (otherwise :no-recognized-input))))
 
 (defun glue-piece-on-board (board piece)
   (let ((init-pos-x (first (pos piece)))

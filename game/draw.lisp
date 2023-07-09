@@ -35,11 +35,11 @@
            (board (make-instance 'board :location (vec (floor w 2) (floor h 2) 0)
 					:tileset (// 'letris-assets 'tileset)
 					:size (vec 10 24)
+					:tile-size (vec 32 32)
 					:tilemap (make-array 480 :element-type '(unsigned-byte 8)))))
       (enter board scene)
       (enter (make-instance '2d-camera) scene)
       (enter (make-instance 'render-pass) scene)))
-
   (maybe-reload-scene))
 
 (define-action-set in-game)

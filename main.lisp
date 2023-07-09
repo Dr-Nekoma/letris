@@ -10,34 +10,34 @@
 (defun define-speed (level) 50)
 
 (define-handler (board tick :around) ()
-  (with-slots (level speed) board
-    (if (> speed 0)
-	(decf speed)
-	(progn
-	  (setf speed (define-speed level))
-	  (call-next-method)))))
+  (with-slots (level speed paused) board
+    (unless paused
+      (if (> speed 0)
+	  (decf speed)
+	  (progn
+	    (setf speed (define-speed level))
+	    (call-next-method))))))
 
 (define-handler (board tick) ()
-  (with-slots (board-representation current-piece current-button move-success score level lines-counter paused) board
-    (unless paused
+  (with-slots (board-representation current-piece current-button move-success score level lines-counter) board
       (let ((lines-cleared (check-board board-representation)))
 	(draw board)
 	(incf score (give-score lines-cleared))
 	(setf (values lines-counter level) (level-up level lines-counter lines-cleared))
-	(if (and (null move-success) (eql current-button :s))
+	(if (not (eql :no-collision move-success))
 	    (progn
 	      (glue-piece-on-board board-representation current-piece)
 	      (setf current-piece (spawn-random-piece)))
-	    (progn
-	      (setf move-success (attempt-to-move board-representation current-piece :s))
-	      (when (null move-success)
+	    ; Moving piece down automatically
+	    (when (not (eql :no-collision (attempt-to-move board-representation current-piece :s)))
 		(glue-piece-on-board board-representation current-piece)
-		(setf current-piece (spawn-random-piece)))))))))
+		(setf current-piece (spawn-random-piece)))))))
 
 (define-handler (board move) ()
-  (with-slots (board-representation current-button current-piece) board
+  (with-slots (board-representation current-button current-piece move-success) board
     (let ((key (key (source-event move))))
-      (when (attempt-to-move board-representation current-piece key)
+      (setf move-success (attempt-to-move board-representation current-piece key))
+      (when (eql :no-collision move-success)
 	(setf current-button key)
 	(draw board)))))
 
