@@ -73,3 +73,5 @@
 ;; TODO: Add space bar for instantaneous drop of the piece
 ;; TODO: Add a game mode in which you can save a piece for later
 ;; TODO: Add a preview of the next 4 pieces in line
+;; TODO: Add music to the game
+;; TODO: Add an option in the menu to swap music
