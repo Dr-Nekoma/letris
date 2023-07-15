@@ -4,12 +4,13 @@
   (ecase number
     (0 (values 0 0)) ; OK
     (1 (values 1 1)) ; OK
-    (2 (values 3 1))
+    (2 (values 1 3))
     (3 (values 1 0)) ; OK
-    (4 (values 1 0))
-    (5 (values 2 1))
-    (6 (values 2 1))
-    (7 (values 3 0))))
+    (4 (values 0 1))
+    (5 (values 0 2))
+    (6 (values 1 2))
+    (7 (values 0 3))
+    (8 (values 2 0))))
 
 (defun print-board (board)
   (destructuring-bind (m n) (array-dimensions board)

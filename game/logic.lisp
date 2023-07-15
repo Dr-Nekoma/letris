@@ -33,18 +33,19 @@
                         :do (let* ((piece-value (aref piece-matrix i j))
                                    (board-x (+ i piece-pos-x))
                                    (board-y (+ j piece-pos-y))
-                                   (is-out-of-bounds (or (>= board-x board-row-size)
-                                                         (>= board-y board-column-size)
-                                                         (< board-y 0)))
                                    (is-piece-value (/= piece-value 0)))
 			      (when is-piece-value
-				(when (or (>= board-y board-column-size) (< board-y 0))
-				  (setf answer :side-collision))
-				(when (>= board-x board-row-size)
-				  (setf answer :bottom-collision))
-			        (let ((board-value (aref board board-x board-y)))
-				  (when (/= board-value 0)
-				    (setf answer :board-collision)))))))
+				(let ((side-collision (or (>= board-y board-column-size) (< board-y 0)))
+				      (bottom-collision (>= board-x board-row-size)))
+				  (if (or side-collision bottom-collision)
+				      (progn
+					(when side-collision
+					  (setf answer :side-collision))
+					(when bottom-collision
+					  (setf answer :bottom-collision)))
+				      (let ((board-value (aref board board-x board-y)))
+					(when (/= board-value 0)
+					  (setf answer :board-collision)))))))))
         answer))))
 
 (defun spawn-random-piece ()
