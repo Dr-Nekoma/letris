@@ -113,7 +113,7 @@
 	  (setf paused t)
 	  :paused))))
 
-(defun swap (list-board)
+(defun swap-store (list-board)
   (lambda (piece)
     (let ((board (car list-board)))
       (with-slots (saved-piece) board
@@ -137,7 +137,7 @@
 	(:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
 	(:q     (move-adjustments piece board-representation  #'rotate-piece-left))
 	(:e     (move-adjustments piece board-representation  #'rotate-piece-right))
-	(:w     (move-adjustments piece board-representation (swap `(,board))))	
+	(:w     (move-adjustments piece board-representation (swap-store `(,board))))	
 	(:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
 	(:space (move-adjustments piece board-representation (insta-place `(,board))))
 	(:p     (handle-pause board))
