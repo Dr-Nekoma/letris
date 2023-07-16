@@ -51,7 +51,6 @@
     (handle-score-level board) ; Handle score and level management
     (handle-input board)
     (draw board) ; Draw board
-    (print move-success)
     (if (not (eql :no-collision move-success)) ; Checking side, bottom and board collision
 	(handle-collision board move-success) ; Handle all sorts of collisions
 	(handle-automatic-fall board)) ; Moving piece down automatically
@@ -70,7 +69,6 @@
 ;; TODO: See if it's possible to change the fps at runtime
 ;; TODO: Add a menu
 ;; TODO: Add pause/resume indications
-;; TODO: Add space bar for instantaneous drop of the piece
 ;; TODO: Add a game mode in which you can save a piece for later
 ;; TODO: Add a preview of the next 4 pieces in line
 ;; TODO: Add music to the game

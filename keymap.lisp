@@ -1,2 +1,2 @@
 (trigger move
-  (key :one-of (:w :a :s :d)))
+  (key :one-of (:w :a :s :d :space)))
