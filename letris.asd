@@ -16,6 +16,6 @@
                   ((:file "util")
 		   (:file "logic")
 		   (:file "game")
-                   (:file "draw")
+		   (:file "draw")
                    (:file "pieces")))
 	       (:file "main")))

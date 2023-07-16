@@ -74,3 +74,8 @@
 
 (defun spawn (kind)
   (make-instance 'piece :kind kind))
+
+(define-handler (board move) ()
+  (with-slots (current-button) board
+    (let ((key (key (source-event move))))
+      (setf current-button key))))

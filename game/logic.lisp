@@ -94,7 +94,7 @@
     piece))
 
 (defun reach-insta-collision (board piece)
-  (let ((result (attempt-to-move board piece :s)))
+  (let ((result (handle-input board piece :s)))
     (or (eql :bottom-collision result) (eql :board-collision result))))
 
 (defun insta-place (board)
@@ -102,16 +102,31 @@
     (loop :while (not (reach-insta-collision (car board) piece)))
     piece)) 
 
-(defun attempt-to-move (board piece user-movement)
-  (let ((x (first (pos piece)))
-        (y (second (pos piece))))
-    (case user-movement
-      (:d     (move-adjustments piece board (change-coords `(,x ,(+ y 1)))))
-      (:a     (move-adjustments piece board (change-coords `(,x ,(- y 1)))))
-      (:w     (move-adjustments piece board  #'rotate-piece-left))
-      (:s     (move-adjustments piece board (change-coords `(,(+ x 1) ,y))))
-      (:space (move-adjustments piece board (insta-place `(,board))))
-      (otherwise :no-recognized-input))))
+(defun handle-pause (board)
+  (with-slots (paused current-button) board
+    (if paused
+	(progn
+	  (setf paused nil)
+	  (setf current-button :s)
+	  :idle)
+	(progn
+	  (setf paused t)
+	  :paused))))
+
+(defun handle-input (board movement)
+  (with-slots (board-representation current-piece paused) board
+    (let ((x (first (pos current-piece)))
+	  (y (second (pos current-piece))))
+      (case movement
+	(:d     (move-adjustments current-piece board-representation (change-coords `(,x ,(+ y 1)))))
+	(:a     (move-adjustments current-piece board-representation (change-coords `(,x ,(- y 1)))))
+	(:q     (move-adjustments current-piece board-representation  #'rotate-piece-left))
+	(:e     (move-adjustments current-piece board-representation  #'rotate-piece-right))
+	;(:w    (TODO: Save and/or swap piece with piece already saved))
+	(:s     (move-adjustments current-piece board-representation (change-coords `(,(+ x 1) ,y))))
+	(:space (move-adjustments current-piece board-representation (insta-place `(,board-representation))))
+	(:p     (handle-pause board))
+	(otherwise (if paused :paused :idle))))))
 
 (defun glue-piece-on-board (board piece)
   (let ((init-pos-x (first (pos piece)))
