@@ -25,8 +25,8 @@
 	(call-next-method))))
 
 (defun update-state (board)
-  (with-slots (current-button state) board
-    (setf state (handle-input board current-button))))
+  (with-slots (current-button current-piece state) board
+    (setf state (handle-input board current-piece current-button))))
 
 (defun handle-score-level (board)
   (with-slots (level lines-counter board-representation score) board
@@ -47,5 +47,5 @@
 
 (defun handle-automatic-fall (board)
   (with-slots (board-representation current-piece) board
-    (let ((fall-response (handle-input board :s)))
+    (let ((fall-response (handle-input board current-piece :s)))
       (handle-state board fall-response))))

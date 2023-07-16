@@ -113,18 +113,18 @@
 	  (setf paused t)
 	  :paused))))
 
-(defun handle-input (board movement)
-  (with-slots (board-representation current-piece paused) board
-    (let ((x (first (pos current-piece)))
-	  (y (second (pos current-piece))))
+(defun handle-input (board piece movement)
+  (with-slots (board-representation paused) board
+    (let ((x (first (pos piece)))
+	  (y (second (pos piece))))
       (case movement
-	(:d     (move-adjustments current-piece board-representation (change-coords `(,x ,(+ y 1)))))
-	(:a     (move-adjustments current-piece board-representation (change-coords `(,x ,(- y 1)))))
-	(:q     (move-adjustments current-piece board-representation  #'rotate-piece-left))
-	(:e     (move-adjustments current-piece board-representation  #'rotate-piece-right))
+	(:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
+	(:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
+	(:q     (move-adjustments piece board-representation  #'rotate-piece-left))
+	(:e     (move-adjustments piece board-representation  #'rotate-piece-right))
 	;(:w    (TODO: Save and/or swap piece with piece already saved))
-	(:s     (move-adjustments current-piece board-representation (change-coords `(,(+ x 1) ,y))))
-	(:space (move-adjustments current-piece board-representation (insta-place `(,board-representation))))
+	(:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
+	(:space (move-adjustments piece board-representation (insta-place `(,board))))
 	(:p     (handle-pause board))
 	(otherwise (if paused :paused :idle))))))
 
