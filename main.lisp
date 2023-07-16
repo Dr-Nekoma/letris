@@ -18,7 +18,7 @@
 ;; TODO: Add speed management when increasing levels
 ;; TODO: Add a menu
 ;; TODO: Add pause/resume indications
-;; TODO: Add a game mode in which you can save a piece for later
+;; TODO: Add visualization for stored piece
 ;; TODO: Add a preview of the next 4 pieces in line
 ;; TODO: Add music to the game
 ;; TODO: Add an option in the menu to swap music

@@ -11,6 +11,7 @@
    (level :initform 0)
    (lines-counter :initform 0)
    (state :initform :no-collision)
+   (saved-piece :initform nil)
    (paused :initform nil)
    (delay :initform 100)))
 

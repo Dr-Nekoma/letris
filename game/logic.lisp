@@ -113,8 +113,23 @@
 	  (setf paused t)
 	  :paused))))
 
+(defun swap (list-board)
+  (lambda (piece)
+    (let ((board (car list-board)))
+      (with-slots (saved-piece) board
+	(if (null saved-piece)
+	    (progn
+	      (setf saved-piece (copy piece))
+	      (setf piece (spawn-random-piece)))
+	    (progn
+	      (let ((temp (copy piece)))
+		(setf piece (copy saved-piece))
+		(setf (pos piece) initial-piece-position)
+		(setf saved-piece temp))))
+	piece))))
+
 (defun handle-input (board piece movement)
-  (with-slots (board-representation paused) board
+  (with-slots (board-representation paused saved-piece) board
     (let ((x (first (pos piece)))
 	  (y (second (pos piece))))
       (case movement
@@ -122,7 +137,7 @@
 	(:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
 	(:q     (move-adjustments piece board-representation  #'rotate-piece-left))
 	(:e     (move-adjustments piece board-representation  #'rotate-piece-right))
-	;(:w    (TODO: Save and/or swap piece with piece already saved))
+	(:w     (move-adjustments piece board-representation (swap `(,board))))	
 	(:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
 	(:space (move-adjustments piece board-representation (insta-place `(,board))))
 	(:p     (handle-pause board))

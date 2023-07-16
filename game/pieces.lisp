@@ -4,13 +4,15 @@
 
 (defun make-board () (make-array '(24 10)))
 
+(defparameter initial-piece-position '(0 4))
+
 (defclass piece ()
   ((kind
     :initarg :kind
     :accessor kind)
    (pos
     :initarg :pos
-    :initform '(0 4)
+    :initform initial-piece-position
     :accessor pos)
    (representation
     :initarg :representation
