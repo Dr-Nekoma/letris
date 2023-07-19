@@ -23,7 +23,7 @@
 	(if (> delay 0)
 	    (decf delay)
 	    (progn
-	      (setf delay (define-delay level))
+	      (setf delay (calculate-delay level))
 	      (call-next-method)))
 	(call-next-method))))
 
@@ -36,7 +36,6 @@
     (let ((lines-cleared (check-board board-representation)))
       (incf score (give-score lines-cleared))
       (setf (values lines-counter level) (level-up level lines-counter lines-cleared)))))
-
 
 ;; TODO: We should re-think on how we will spawn in the piece (above the board and such) because
 ;; this changes when the game ends and how we will the final piece to the player

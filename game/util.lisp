@@ -5,7 +5,16 @@
 ;; (defun define-speed (level)
 ;;   (if (= level 2) 100 200))
 
-(defun define-delay (level) 50)
+(defparameter base-delay 50)
+
+(defun calculate-delay (level)
+  (ecase level
+    (5 base-delay)
+    (10 (- base-delay 15)) ;; 35
+    (15 (- base-delay 30)) ;; 20
+    (20 (- base-delay 40)) ;; 10
+    (30 (- base-delay 45)) ;; 5
+    (40 1)))
 
 (defun number-to-tile (number)
   (ecase number
