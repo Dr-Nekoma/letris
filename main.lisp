@@ -13,13 +13,20 @@
 	  (handle-automatic-fall board))      ; Moving piece down automatically
       (setf current-button nil))))            ; Erase past input from user
 
-;; TODO: (????) We need to clean the ghosts of the piece after moving (go to the UNLESS Nathan hates)
-;; TODO: Add the end of the game condition
-;; TODO: Add more details
-;; TODO: Add speed management when increasing levels
-;; TODO: Add a menu
-;; TODO: Add pause/resume indications
-;; TODO: Add visualization for stored piece
-;; TODO: Add a preview of the next 4 pieces in line
+;; Letris 1.0
+;; TODO: Implement game logic for 2D game
+;; TODO: Visualization in terminal with prints
+
+;; Letris 2.0
 ;; TODO: Add music to the game
-;; TODO: Add an option in the menu to swap music
+;; TODO: Add visualization of stuff (next piece in line, stored piece, controls, level, score, controls, end game)
+
+;; Letris 3.0
+;; TODO: Add different game modes (classic, with-swap)
+;; TODO: Add a menu (changing delay configuration, different game modes, changing music)
+;; TODO: Transform Letris into L3tris (3D only in terms of visualization)
+
+;; Letris 4.0
+;; TODO: Add multiplayer mode to the game
+;; TODO: Add a 3D game mode
+
