@@ -128,20 +128,26 @@
 		(setf saved-piece temp))))
 	piece))))
 
+(defun handle-reset (board)
+  (change-class board 'dummy)
+  (change-class board 'board))
+
 (defun handle-input (board piece movement)
-  (with-slots (board-representation paused saved-piece) board
-    (let ((x (first (pos piece)))
-	  (y (second (pos piece))))
-      (case movement
-	(:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
-	(:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
-	(:q     (move-adjustments piece board-representation  #'rotate-piece-left))
-	(:e     (move-adjustments piece board-representation  #'rotate-piece-right))
-	(:w     (move-adjustments piece board-representation (swap-store `(,board))))	
-	(:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
-	(:space (move-adjustments piece board-representation (insta-place `(,board))))
-	(:p     (handle-pause board))
-	(otherwise (if paused :paused :idle))))))
+  (with-slots (board-representation paused saved-piece state) board
+    (if (null state) (if (eql movement :r) (handle-reset board))
+	(let ((x (first (pos piece)))
+	      (y (second (pos piece))))
+	  (case movement
+	    (:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
+	    (:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
+	    (:q     (move-adjustments piece board-representation  #'rotate-piece-left))
+	    (:e     (move-adjustments piece board-representation  #'rotate-piece-right))
+	    (:w     (move-adjustments piece board-representation (swap-store `(,board))))
+	    (:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
+	    (:space (move-adjustments piece board-representation (insta-place `(,board))))
+	    (:p     (handle-pause board))
+	    (:r     (handle-reset board))
+	    (otherwise (if paused :paused :idle)))))))
 
 (defun glue-piece-on-board (board piece)
   (let ((init-pos-x (first (pos piece)))
