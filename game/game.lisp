@@ -15,15 +15,17 @@
    (state :initform :no-collision)
    (saved-piece :initform nil)
    (paused :initform nil)
-   (delay :initform 100)))
+   (delay :initform base-delay)
+   (current-delay :initform base-delay)))
 
 (define-handler (board tick :around) ()
-  (with-slots (level delay paused current-button) board
+  (with-slots (level delay paused current-button current-delay) board
     (if (and (null current-button) (not paused))
 	(if (> delay 0)
 	    (decf delay)
 	    (progn
-	      (setf delay (calculate-delay level))
+	      (setf delay (calculate-delay level current-delay))
+	      (setf current-delay delay)
 	      (call-next-method)))
 	(call-next-method))))
 

@@ -7,14 +7,14 @@
 
 (defparameter base-delay 50)
 
-(defun calculate-delay (level)
-  (ecase level
-    (5 base-delay)
+(defun calculate-delay (level delay)
+  (case level
     (10 (- base-delay 15)) ;; 35
     (15 (- base-delay 30)) ;; 20
     (20 (- base-delay 40)) ;; 10
     (30 (- base-delay 45)) ;; 5
-    (40 1)))
+    (40 1)
+    (otherwise delay)))
 
 (defun number-to-tile (number)
   (ecase number

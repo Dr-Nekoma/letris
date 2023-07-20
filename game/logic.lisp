@@ -49,14 +49,15 @@
         answer))))
 
 (defun spawn-random-piece ()
-  (let ((index (random 6)))
+  (let ((index (random 7)))
     (case index
       (0 (spawn 't-piece))
       (1 (spawn 's-piece))
       (2 (spawn 'i-piece))
       (3 (spawn 'j-piece))
       (4 (spawn 'o-piece))
-      (5 (spawn 'z-piece)))))
+      (5 (spawn 'z-piece))
+      (6 (spawn 'l-piece)))))
 
 (defun find-row-to-clear (board)
   (destructuring-bind (h w) (array-dimensions board)
