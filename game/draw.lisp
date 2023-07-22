@@ -11,7 +11,7 @@
 (defun draw (board)
   (with-slots (board-representation current-piece) board
     (let ((board-clone (copy board-representation))
-	  (data (pixel-data board)))
+          (data (pixel-data board)))
       (glue-piece-on-board board-clone current-piece)
       (board-to-tilemap (extend-board board-clone) data)     
       (setf (pixel-data board) data))))
@@ -19,38 +19,38 @@
 (defun draw-border (board)
   (destructuring-bind (h w) (array-dimensions board)
     (loop :for i :below w
-	  :do (setf (aref board 0 i) 8)
-	      (setf (aref board (- h 1) i) 8))
+          :do (setf (aref board 0 i) 8)
+              (setf (aref board (- h 1) i) 8))
     (loop :for j :below h
-	  :do (setf (aref board j 0) 8)
-	      (setf (aref board j (- w 1)) 8))
+          :do (setf (aref board j 0) 8)
+              (setf (aref board j (- w 1)) 8))
     board))
 
 (defun extend-board (board)
   (destructuring-bind (h w) (array-dimensions board)
     (let ((new-board (make-array '(26 12))))
       (loop :for i :from 0 :below h
-	    :do (loop :for j :below w
-		      :do (setf (aref new-board (+ i 1) (+ j 1)) (aref board i j))))
+            :do (loop :for j :below w
+                      :do (setf (aref new-board (+ i 1) (+ j 1)) (aref board i j))))
       (draw-border new-board))))
 
 (defun board-to-tilemap (board-representation tilemap)
   (destructuring-bind (h w) (array-dimensions board-representation)
     (let ((index 0))
       (loop :for i :from (- h 1) :downto 0
-	    :do (loop :for j :below w
-		      :do (setf (values
-				 (aref tilemap index)
-				 (aref tilemap (+ 1 index)))
-				(number-to-tile (aref board-representation i j)))
-			  (incf index 2))))))
+            :do (loop :for j :below w
+                      :do (setf (values
+                                 (aref tilemap index)
+                                 (aref tilemap (+ 1 index)))
+                                (number-to-tile (aref board-representation i j)))
+                          (incf index 2))))))
 
 (defun make-default-board (h w)
   (make-instance 'board :location (vec (floor w 2) (floor h 2) 0)
-			:tileset (// 'letris-assets 'tileset)
-			:size (vec 12 26)
-			:tile-size (vec 32 32)
-			:tilemap (make-array 624 :element-type '(unsigned-byte 8))))
+                        :tileset (// 'letris-assets 'tileset)
+                        :size (vec 12 26)
+                        :tile-size (vec 32 32)
+                        :tilemap (make-array 624 :element-type '(unsigned-byte 8))))
 (progn
   (defmethod setup-scene ((main main) scene)
     (setf (title *context*) "Letris")
@@ -74,8 +74,8 @@
 
 (define-handler (board resize) ()
  (setf (location board) (vec (floor (width resize) 2)
-			     (floor (height resize) 2)
-			     0)))
+                             (floor (height resize) 2)
+                             0)))
 
 #||
 (defun draw-outline (matrix origin offset)

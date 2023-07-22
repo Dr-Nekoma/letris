@@ -34,18 +34,18 @@
                                    (board-x (+ i piece-pos-x))
                                    (board-y (+ j piece-pos-y))
                                    (is-piece-value (/= piece-value 0)))
-			      (when is-piece-value
-				(let ((side-collision (or (>= board-y board-column-size) (< board-y 0)))
-				      (bottom-collision (>= board-x board-row-size)))
-				  (if (or side-collision bottom-collision)
-				      (progn
-					(when side-collision
-					  (setf answer :side-collision))
-					(when bottom-collision
-					  (setf answer :bottom-collision)))
-				      (let ((board-value (aref board board-x board-y)))
-					(when (/= board-value 0)
-					  (setf answer :board-collision)))))))))
+                              (when is-piece-value
+                                (let ((side-collision (or (>= board-y board-column-size) (< board-y 0)))
+                                      (bottom-collision (>= board-x board-row-size)))
+                                  (if (or side-collision bottom-collision)
+                                      (progn
+                                        (when side-collision
+                                          (setf answer :side-collision))
+                                        (when bottom-collision
+                                          (setf answer :bottom-collision)))
+                                      (let ((board-value (aref board board-x board-y)))
+                                        (when (/= board-value 0)
+                                          (setf answer :board-collision)))))))))
         answer))))
 
 (defun spawn-random-piece ()
@@ -83,10 +83,10 @@
 
 (defun move-adjustments (piece board func)
   (let* ((new-piece (funcall func (copy piece)))
-	(collision-result (has-collision board new-piece)))
+        (collision-result (has-collision board new-piece)))
     (when (eql collision-result :no-collision)
       (setf (pos piece) (pos new-piece)
-	    (representation piece) (representation new-piece)))
+            (representation piece) (representation new-piece)))
     collision-result))
 
 (defun change-coords (coords)
@@ -106,28 +106,28 @@
 (defun handle-pause (board)
   (with-slots (paused current-button) board
     (if paused
-	(progn
-	  (setf paused nil)
-	  (setf current-button :s)
-	  :idle)
-	(progn
-	  (setf paused t)
-	  :paused))))
+        (progn
+          (setf paused nil)
+          (setf current-button :s)
+          :idle)
+        (progn
+          (setf paused t)
+          :paused))))
 
 (defun swap-store (list-board)
   (lambda (piece)
     (let ((board (car list-board)))
       (with-slots (saved-piece) board
-	(if (null saved-piece)
-	    (progn
-	      (setf saved-piece (copy piece))
-	      (setf piece (spawn-random-piece)))
-	    (progn
-	      (let ((temp (copy piece)))
-		(setf piece (copy saved-piece))
-		(setf (pos piece) initial-piece-position)
-		(setf saved-piece temp))))
-	piece))))
+        (if (null saved-piece)
+            (progn
+              (setf saved-piece (copy piece))
+              (setf piece (spawn-random-piece)))
+            (progn
+              (let ((temp (copy piece)))
+                (setf piece (copy saved-piece))
+                (setf (pos piece) initial-piece-position)
+                (setf saved-piece temp))))
+        piece))))
 
 (defun handle-reset (board)
   (change-class board 'dummy)
@@ -136,19 +136,19 @@
 (defun handle-input (board piece movement)
   (with-slots (board-representation paused saved-piece state) board
     (if (null state) (if (eql movement :r) (handle-reset board))
-	(let ((x (first (pos piece)))
-	      (y (second (pos piece))))
-	  (case movement
-	    (:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
-	    (:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
-	    (:q     (move-adjustments piece board-representation  #'rotate-piece-left))
-	    (:e     (move-adjustments piece board-representation  #'rotate-piece-right))
-	    (:w     (move-adjustments piece board-representation (swap-store `(,board))))
-	    (:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
-	    (:space (move-adjustments piece board-representation (insta-place `(,board))))
-	    (:p     (handle-pause board))
-	    (:r     (handle-reset board))
-	    (otherwise (if paused :paused :idle)))))))
+        (let ((x (first (pos piece)))
+              (y (second (pos piece))))
+          (case movement
+            (:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
+            (:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
+            (:q     (move-adjustments piece board-representation  #'rotate-piece-left))
+            (:e     (move-adjustments piece board-representation  #'rotate-piece-right))
+            (:w     (move-adjustments piece board-representation (swap-store `(,board))))
+            (:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
+            (:space (move-adjustments piece board-representation (insta-place `(,board))))
+            (:p     (handle-pause board))
+            (:r     (handle-reset board))
+            (otherwise (if paused :paused :idle)))))))
 
 (defun glue-piece-on-board (board piece)
   (let ((init-pos-x (first (pos piece)))
@@ -175,7 +175,7 @@
 
 (defun level-up (level lines-counter lines-cleared)
   (let ((sum-lines (+ lines-cleared lines-counter))
-	(threshold (* level 5)))
+        (threshold (* level 5)))
     (if (>= sum-lines threshold)
-	(values (- sum-lines threshold) (+ 1 level))
-	(values lines-counter level))))
+        (values (- sum-lines threshold) (+ 1 level))
+        (values lines-counter level))))

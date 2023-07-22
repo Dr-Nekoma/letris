@@ -21,13 +21,13 @@
 (define-handler (board tick :around) ()
   (with-slots (level delay paused current-button current-delay) board
     (if (and (null current-button) (not paused))
-	(if (> delay 0)
-	    (decf delay)
-	    (progn
-	      (setf delay (calculate-delay level current-delay))
-	      (setf current-delay delay)
-	      (call-next-method)))
-	(call-next-method))))
+        (if (> delay 0)
+            (decf delay)
+            (progn
+              (setf delay (calculate-delay level current-delay))
+              (setf current-delay delay)
+              (call-next-method)))
+        (call-next-method))))
 
 (defun update-state (board)
   (with-slots (current-button current-piece state) board
@@ -45,8 +45,8 @@
   (with-slots (board-representation current-piece state) board
     (let ((collision-result (has-collision board-representation current-piece)))
       (when (eql collision-result :board-collision)
-	(glue-piece-on-board board-representation current-piece)
-	(setf state nil)))))
+        (glue-piece-on-board board-representation current-piece)
+        (setf state nil)))))
 
 (defun handle-next-round (board)
   (with-slots (board-representation current-piece) board
