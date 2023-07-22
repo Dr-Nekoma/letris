@@ -55,10 +55,9 @@
     (check-end-condition board)))
 
 (defun handle-state (board collision-state)
-  (when (or (eql collision-state :bottom-collision) (eql collision-state :board-collision))
-    (handle-next-round board))
-  (when (eql collision-state :idle)
-    (handle-automatic-fall board)))
+  (case collision-state
+    ((:bottom-collision :board-collision) (handle-next-round board))
+    (:idle (handle-automatic-fall board))))
 
 (defun handle-automatic-fall (board)
   (with-slots (board-representation current-piece) board

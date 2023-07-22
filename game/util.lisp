@@ -1,11 +1,7 @@
 (in-package #:letris)
 
-; After you reach a certain amount of score, decrease counter, and so on and so forth
 
-;; (defun define-speed (level)
-;;   (if (= level 2) 100 200))
-
-(defparameter base-delay 50)
+(defconstant base-delay 50)
 
 (defun calculate-delay (level delay)
   (case level

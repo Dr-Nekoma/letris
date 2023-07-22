@@ -20,7 +20,6 @@
     piece))
 
 (defun has-collision (board piece)
-  (declare (optimize (debug 3) (safety 3)))
   (destructuring-bind (piece-row-size piece-column-size) (array-dimensions (representation piece))
     (destructuring-bind (board-row-size board-column-size) (array-dimensions board)
       (let* ((initial-position (pos piece))
@@ -44,7 +43,7 @@
                                         (when bottom-collision
                                           (setf answer :bottom-collision)))
                                       (let ((board-value (aref board board-x board-y)))
-                                        (when (/= board-value 0)
+                                        (unless (= board-value 0)
                                           (setf answer :board-collision)))))))))
         answer))))
 
@@ -83,7 +82,7 @@
 
 (defun move-adjustments (piece board func)
   (let* ((new-piece (funcall func (copy piece)))
-        (collision-result (has-collision board new-piece)))
+         (collision-result (has-collision board new-piece)))
     (when (eql collision-result :no-collision)
       (setf (pos piece) (pos new-piece)
             (representation piece) (representation new-piece)))
@@ -96,11 +95,11 @@
 
 (defun reach-insta-collision (board piece)
   (let ((result (handle-input board piece :s)))
-    (or (eql :bottom-collision result) (eql :board-collision result))))
+    (find result '(:bottom-collision :board-collision))))
 
 (defun insta-place (board)
   (lambda (piece)
-    (loop :while (not (reach-insta-collision (car board) piece)))
+    (loop :until (reach-insta-collision board piece))
     piece)) 
 
 (defun handle-pause (board)
@@ -114,20 +113,19 @@
           (setf paused t)
           :paused))))
 
-(defun swap-store (list-board)
+(defun swap-store (board)
   (lambda (piece)
-    (let ((board (car list-board)))
-      (with-slots (saved-piece) board
-        (if (null saved-piece)
-            (progn
-              (setf saved-piece (copy piece))
-              (setf piece (spawn-random-piece)))
-            (progn
-              (let ((temp (copy piece)))
-                (setf piece (copy saved-piece))
-                (setf (pos piece) initial-piece-position)
-                (setf saved-piece temp))))
-        piece))))
+    (with-slots (saved-piece) board
+      (if (null saved-piece)
+          (progn
+            (setf saved-piece (copy piece))
+            (setf piece (spawn-random-piece)))
+          (progn
+            (let ((temp (copy piece)))
+              (setf piece (copy saved-piece))
+              (setf (pos piece) initial-piece-position)
+              (setf saved-piece temp))))
+      piece)))
 
 (defun handle-reset (board)
   (change-class board 'dummy)
@@ -135,17 +133,18 @@
 
 (defun handle-input (board piece movement)
   (with-slots (board-representation paused saved-piece state) board
-    (if (null state) (if (eql movement :r) (handle-reset board))
+    (if (null state)
+        (when (eql movement :r) (handle-reset board))
         (let ((x (first (pos piece)))
               (y (second (pos piece))))
           (case movement
-            (:d     (move-adjustments piece board-representation (change-coords `(,x ,(+ y 1)))))
-            (:a     (move-adjustments piece board-representation (change-coords `(,x ,(- y 1)))))
+            (:d     (move-adjustments piece board-representation (change-coords (list x (+ y 1)))))
+            (:a     (move-adjustments piece board-representation (change-coords (list x (- y 1)))))
             (:q     (move-adjustments piece board-representation  #'rotate-piece-left))
             (:e     (move-adjustments piece board-representation  #'rotate-piece-right))
-            (:w     (move-adjustments piece board-representation (swap-store `(,board))))
-            (:s     (move-adjustments piece board-representation (change-coords `(,(+ x 1) ,y))))
-            (:space (move-adjustments piece board-representation (insta-place `(,board))))
+            (:w     (move-adjustments piece board-representation (swap-store board)))
+            (:s     (move-adjustments piece board-representation (change-coords (list (+ x 1) y))))
+            (:space (move-adjustments piece board-representation (insta-place board)))
             (:p     (handle-pause board))
             (:r     (handle-reset board))
             (otherwise (if paused :paused :idle)))))))

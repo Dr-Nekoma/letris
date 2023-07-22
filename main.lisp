@@ -8,9 +8,9 @@
     (unless (null state)                      ; Continue only if the game is still going
       (handle-score-level board)              ; Handle score and level management    
       (draw board)                            ; Draw board
-      (if (not (eql :no-collision state))     ; Checking all game states aside from no-collision
-          (handle-state board state)          ; Handle all remaining states
-          (handle-automatic-fall board))      ; Moving piece down automatically
+      (if (eql :no-collision state)           ; Checking all game states aside from no-collision
+          (handle-automatic-fall board)       ; Moving piece down automatically
+          (handle-state board state))         ; Handle all remaining states
       (setf current-button nil))))            ; Erase past input from user
 
 ;; Letris 1.0
