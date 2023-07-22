@@ -8,6 +8,7 @@
   :serial t
   :depends-on (:trial
                :trial-glfw
+	       :trial-harmony
                :trial-png)
   :components ((:file "package")
                (:file "util")
@@ -17,5 +18,6 @@
 		   (:file "logic")
 		   (:file "game")
 		   (:file "draw")
+		   ;; (:file "sound")
                    (:file "pieces")))
 	       (:file "main")))

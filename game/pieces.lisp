@@ -1,5 +1,3 @@
-
-
 (in-package #:letris)
 
 (defun make-board () (make-array '(24 10)))

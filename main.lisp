@@ -19,7 +19,7 @@
 
 ;; Letris 2.0
 ;; TODO: Add music to the game
-;; TODO: Add visualization of stuff (next piece in line, stored piece, controls, level, score, controls, end game)
+;; TODO: Add visualization of stuff (next piece in line, stored piece, controls, level, score, end game)
 
 ;; Letris 3.0
 ;; TODO: Add different game modes (classic, with-swap)
