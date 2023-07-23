@@ -8,16 +8,17 @@
   :serial t
   :depends-on (:trial
                :trial-glfw
-	       :trial-harmony
+               :trial-harmony
                :trial-png)
   :components ((:file "package")
                (:file "util")
                (:module "game"
                   :components
                   ((:file "util")
-		   (:file "logic")
-		   (:file "game")
-		   (:file "draw")
-		   ;; (:file "sound")
-                   (:file "pieces")))
-	       (:file "main")))
+           (:file "logic")
+           (:file "assets")
+           (:file "game")
+           (:file "draw")
+           (:file "setup")
+           (:file "pieces")))
+           (:file "main")))

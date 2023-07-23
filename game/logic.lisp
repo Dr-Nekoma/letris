@@ -131,6 +131,18 @@
   (change-class board 'dummy)
   (change-class board 'board))
 
+
+(defun handle-music (board)
+  (with-slots (music state) board
+    (if music
+        (progn
+          (harmony:stop music)
+          (setf music nil)
+          state)
+        (progn
+          (setf music (harmony:play +music-path+))
+          state))))
+
 (defun handle-input (board piece movement)
   (with-slots (board-representation paused saved-piece state) board
     (if (null state)
@@ -147,6 +159,7 @@
             (:space (move-adjustments piece board-representation (insta-place board)))
             (:p     (handle-pause board))
             (:r     (handle-reset board))
+            (:m     (handle-music board))
             (otherwise (if paused :paused :idle)))))))
 
 (defun glue-piece-on-board (board piece)

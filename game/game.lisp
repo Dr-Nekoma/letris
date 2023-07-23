@@ -1,6 +1,6 @@
 (in-package #:letris)
 
-(defclass main (trial:main)
+(defclass main (trial-harmony:settings-main)
   ())
 
 (define-shader-entity dummy (tile-layer listener) ())
@@ -16,7 +16,8 @@
    (saved-piece :initform nil)
    (paused :initform nil)
    (delay :initform base-delay)
-   (current-delay :initform base-delay)))
+   (current-delay :initform base-delay)
+   (music :initform nil :initarg :music)))
 
 (define-handler (board tick :around) ()
   (with-slots (level delay paused current-button current-delay) board
