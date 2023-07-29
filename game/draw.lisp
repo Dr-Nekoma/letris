@@ -42,3 +42,17 @@
                              (floor (height resize) 2)
                              0)))
 
+(defparameter score-level
+  (let* ((width 10)
+	 (height 3)
+	 (initial (make-array '(height width) :initial-element 8)))
+    (loop :for i :below (- width 1)
+	  :do (setf (aref initial 1 i) 0))
+    (setf (aref initial 1 8) 8)
+    initial))
+
+(defparameter piece-spot
+  (let* ((width 6)
+	 (height 6)
+	 (initial (make-array '(height width) :initial-element 0)))
+    (draw-border initial)))

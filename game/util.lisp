@@ -24,6 +24,16 @@
     (7 (values 0 3))
     (8 (values 2 0))))
 
+(defun draw-border (board)
+  (destructuring-bind (h w) (array-dimensions board)
+    (loop :for i :below w
+	  :do (setf (aref board 0 i) 8)
+	      (setf (aref board (- h 1) i) 8))
+    (loop :for j :below h
+	  :do (setf (aref board j 0) 8)
+	      (setf (aref board j (- w 1)) 8))
+    board))
+
 (defun print-board (board)
   (destructuring-bind (m n) (array-dimensions board)
     (loop :for i :below m

@@ -14,6 +14,7 @@
    (lines-counter :initform 0)
    (state :initform :no-collision)
    (saved-piece :initform nil)
+   (next-piece :initform nil)
    (paused :initform nil)
    (delay :initform base-delay)
    (current-delay :initform base-delay)
@@ -49,10 +50,18 @@
         (glue-piece-on-board board-representation current-piece)
         (setf state nil)))))
 
+(defun go-to-next-piece (board)
+  (with-slots (next-piece current-piece) board
+    (let ((next (if (null next-piece)	
+		    (spawn-random-piece)
+    	          (copy next-piece))))
+      (setf current-piece next)      
+      (setf next-piece (spawn-random-piece)))))
+
 (defun handle-next-round (board)
   (with-slots (board-representation current-piece) board
     (glue-piece-on-board board-representation current-piece)
-    (setf current-piece (spawn-random-piece))
+    (go-to-next-piece board)
     (check-end-condition board)))
 
 (defun handle-state (board collision-state)
