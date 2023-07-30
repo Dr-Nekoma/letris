@@ -52,9 +52,9 @@
 
 (defun go-to-next-piece (board)
   (with-slots (next-piece current-piece) board
-    (let ((next (if (null next-piece)	
-		    (spawn-random-piece)
-    	          (copy next-piece))))
+    (let ((next (if (null next-piece)
+                    (spawn-random-piece)
+                    (copy next-piece))))
       (setf current-piece next)      
       (setf next-piece (spawn-random-piece)))))
 

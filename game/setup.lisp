@@ -26,6 +26,7 @@
            (h (height *context*))
            (board (make-default-board h w)))
       (enter board scene)
+      (enter (make-instance 'drn-button :location (vec (- w 200) 200 0)) scene)
       (enter (make-instance '2d-camera) scene)
       (enter (make-instance 'render-pass) scene)))
   (maybe-reload-scene))

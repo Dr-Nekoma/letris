@@ -33,26 +33,29 @@
                         :size (vec 12 26)
                         :tile-size (vec 32 32)
                         :tilemap (make-array 624 :element-type '(unsigned-byte 8))
-                        :music (harmony:play +music-path+ :repeat t)))
+                        :music nil)) ;(harmony:play +music-path+ :repeat t)))
 
 
 
 (define-handler (board resize) ()
- (setf (location board) (vec (floor (width resize) 2)
-                             (floor (height resize) 2)
-                             0)))
+  (setf (location board) (vec (floor (width resize) 2)
+                              (floor (height resize) 2)
+                              0)))
+
+(define-handler (drn-button resize) ()
+  (setf (location drn-button) (vec (- (width resize) 200) 200 0)))
 
 (defparameter score-level
   (let* ((width 10)
-	 (height 3)
-	 (initial (make-array '(height width) :initial-element 8)))
+         (height 3)
+         (initial (make-array (list height width) :initial-element 8)))
     (loop :for i :below (- width 1)
-	  :do (setf (aref initial 1 i) 0))
+          :do (setf (aref initial 1 i) 0))
     (setf (aref initial 1 8) 8)
     initial))
 
 (defparameter piece-spot
   (let* ((width 6)
-	 (height 6)
-	 (initial (make-array '(height width) :initial-element 0)))
+         (height 6)
+         (initial (make-array (list height width) :initial-element 0)))
     (draw-border initial)))

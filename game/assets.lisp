@@ -25,3 +25,14 @@
 
 (define-asset (letris-assets tileset) image
     #p"tileset.png")
+
+
+(define-asset (letris-assets square) mesh
+    (make-rectangle-mesh 200 200))
+
+(define-asset (letris-assets drn-button) image
+  #p"drn-button.png")
+
+(define-shader-entity drn-button (vertex-entity textured-entity located-entity listener)
+  ((vertex-array :initform (// 'letris-assets 'square))
+   (texture :initform (// 'letris-assets 'drn-button))))
